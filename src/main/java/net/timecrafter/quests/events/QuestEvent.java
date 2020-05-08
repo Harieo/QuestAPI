@@ -1,27 +1,27 @@
-package net.timecrafter.quests.quests.events;
+package net.timecrafter.quests.events;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import net.timecrafter.quests.quests.Quest;
+import net.timecrafter.quests.Quest;
+import net.timecrafter.quests.party.QuestParty;
 
 public class QuestEvent extends Event {
 
 	private final Quest quest;
-	private final Player player;
+	private final QuestParty party;
 
-	public QuestEvent(Quest quest, Player player) {
+	public QuestEvent(Quest quest, QuestParty party) {
 		this.quest = quest;
-		this.player = player;
+		this.party = party;
 	}
 
 	public Quest getQuest() {
 		return quest;
 	}
 
-	public Player getPlayer() {
-		return player;
+	public QuestParty getQuestParty() {
+		return party;
 	}
 
 	private static final HandlerList handlerList = new HandlerList();

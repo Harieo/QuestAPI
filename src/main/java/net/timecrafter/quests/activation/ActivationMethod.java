@@ -1,4 +1,4 @@
-package net.timecrafter.quests.quests.activation;
+package net.timecrafter.quests.activation;
 
 import org.bukkit.event.Listener;
 

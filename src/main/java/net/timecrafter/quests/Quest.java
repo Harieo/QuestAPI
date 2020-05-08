@@ -1,18 +1,18 @@
-package net.timecrafter.quests.quests;
+package net.timecrafter.quests;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;
-import net.timecrafter.quests.QuestPlugin;
-import net.timecrafter.quests.quests.activation.ActivationMethod;
-import net.timecrafter.quests.quests.events.QuestCompletionEvent;
-import net.timecrafter.quests.quests.events.QuestStageProgressionEvent;
-import net.timecrafter.quests.quests.events.QuestStartEvent;
-import net.timecrafter.quests.quests.stages.QuestAction;
-import net.timecrafter.quests.quests.stages.QuestStage;
-import net.timecrafter.quests.quests.stages.QuestTask;
+import net.timecrafter.quests.activation.ActivationMethod;
+import net.timecrafter.quests.events.QuestCompletionEvent;
+import net.timecrafter.quests.events.QuestStageProgressionEvent;
+import net.timecrafter.quests.events.QuestStartEvent;
+import net.timecrafter.quests.party.QuestParty;
+import net.timecrafter.quests.stages.QuestAction;
+import net.timecrafter.quests.stages.QuestStage;
+import net.timecrafter.quests.stages.QuestTask;
 
 public abstract class Quest {
 
@@ -21,7 +21,7 @@ public abstract class Quest {
 	private final QuestType questType;
 
 	private final List<QuestStage> stages;
-	private final Map<UUID, Integer> currentStageMap = new HashMap<>();
+	private final Set<QuestParty> parties = new HashSet<>();
 
 	/**
 	 * An object which represents a line of linear events, which are instances of {@link QuestStage}, and handles the
@@ -75,29 +75,28 @@ public abstract class Quest {
 	}
 
 	/**
-	 * Starts a player on this quest at the first stage
+	 * Starts a {@link QuestParty} of players on this quest at the first stage
 	 *
-	 * @param player who is starting the quest
+	 * @param party who is starting the quest
 	 */
-	public void start(Player player) {
-		setStage(player, stages.get(0));
-		Bukkit.getPluginManager().callEvent(new QuestStartEvent(this, player));
+	public void start(QuestParty party) {
+		setStage(party, stages.get(0));
+		Bukkit.getPluginManager().callEvent(new QuestStartEvent(this, party));
 	}
 
 	/**
 	 * Progresses a player to the next {@link QuestStage} in the sequence
 	 *
-	 * @param player who is moving to the next stage
+	 * @param party who is moving to the next stage
 	 * @return whether the next stage was available
 	 */
-	public boolean nextStage(Player player) {
-		UUID uuid = player.getUniqueId();
-		if (currentStageMap.containsKey(uuid)) {
-			int nextIndex = currentStageMap.get(uuid) + 1;
+	public boolean nextStage(QuestParty party) {
+		if (parties.contains(party)) {
+			int nextIndex = stages.indexOf(party.getCurrentStage()) + 1;
 			if (nextIndex < stages.size()) {
 				QuestStage nextStage = stages.get(nextIndex);
-				setStage(player, nextStage);
-				Bukkit.getPluginManager().callEvent(new QuestStageProgressionEvent(this, player, nextStage));
+				setStage(party, nextStage);
+				Bukkit.getPluginManager().callEvent(new QuestStageProgressionEvent(this, party, nextStage));
 				return true;
 			}
 		}
@@ -106,25 +105,19 @@ public abstract class Quest {
 	}
 
 	/**
-	 * Sets a player's current {@link QuestStage} and handles the execution of that stage accordingly. Note: This method
+	 * Sets a party's current {@link QuestStage} and handles the execution of that stage accordingly. Note: This method
 	 * is private because it is dangerous to use out of sequence due to the fact that it calls {@link
-	 * #nextStage(Player)} which calls this method again in turn. Editing this method incorrectly may result in a stack
-	 * overflow.
+	 * #nextStage(QuestParty)} which calls this method again in turn. Editing this method incorrectly may result in a
+	 * stack overflow.
 	 *
-	 * @param player to set the stage for
+	 * @param party to set the stage for
 	 * @param stage to be executed
 	 */
-	private void setStage(Player player, QuestStage stage) {
-		UUID uuid = player.getUniqueId();
-
+	private void setStage(QuestParty party, QuestStage stage) {
 		int index = stages.indexOf(stage);
-		if (currentStageMap.containsKey(uuid)) {
-			currentStageMap.replace(uuid, index);
-		} else {
-			currentStageMap.put(uuid, index);
-		}
 
-		stage.execute(player); // Begins the stage
+		party.setCurrentStage(stage);
+		stage.execute(party); // Begins the stage
 
 		int tickDelay = -1;
 		Runnable runnable;
@@ -134,23 +127,23 @@ public abstract class Quest {
 		}
 		if (stage instanceof QuestTask) {
 			QuestTask task = (QuestTask) stage;
-			if (task.isComplete(player) && tickDelay < 0) { // If 0 or more, it was an action with a custom time
+			if (task.isComplete(party) && tickDelay < 0) { // If 0 or more, it was an action with a custom time
 				tickDelay = 0;
-			} else if (!task.isComplete(player)) {
+			} else if (!task.isComplete(party)) {
 				tickDelay = -1; // Don't progress if the task isn't complete
 			}
 		}
 
 		if (index + 1 < stages.size()) { // If there is a next stage
 			runnable = () -> {
-				boolean success = nextStage(player);
+				boolean success = nextStage(party);
 				if (!success) {
 					QuestPlugin.getInstance().getLogger().warning(
-							"Failed to progress quest for " + player.getName() + ", which is an error");
+							"Failed to progress quest for a party, which is an error");
 				}
 			};
 		} else {
-			runnable = () -> completeQuest(player);
+			runnable = () -> completeQuest(party);
 		}
 
 		if (tickDelay > -1) {
@@ -163,13 +156,13 @@ public abstract class Quest {
 	}
 
 	/**
-	 * Calls {@link #onQuestCompletion(Player)} and {@link QuestCompletionEvent} for the player
+	 * Calls {@link #onQuestCompletion(QuestParty)} and {@link QuestCompletionEvent} for the player
 	 *
-	 * @param player who has completed this quest
+	 * @param party who has completed this quest
 	 */
-	private void completeQuest(Player player) {
-		onQuestCompletion(player);
-		Bukkit.getPluginManager().callEvent(new QuestCompletionEvent(this, player));
+	private void completeQuest(QuestParty party) {
+		onQuestCompletion(party);
+		Bukkit.getPluginManager().callEvent(new QuestCompletionEvent(this, party));
 	}
 
 	/**
@@ -193,9 +186,9 @@ public abstract class Quest {
 	 * An internal abstract method which is called when a player completes the quest. This saves you having to make a
 	 * listener for {@link QuestCompletionEvent} if you don't need to.
 	 *
-	 * @param player who has completed the quest
+	 * @param party who has completed the quest
 	 */
-	public abstract void onQuestCompletion(Player player);
+	public abstract void onQuestCompletion(QuestParty party);
 
 	/**
 	 * @return a list of all the stages in this quest which will be copied to prevent any further editing

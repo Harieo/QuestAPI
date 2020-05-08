@@ -1,4 +1,4 @@
-package net.timecrafter.quests.quests.stages;
+package net.timecrafter.quests.stages;
 
 /**
  * Represents a quest stage which has no criteria or conditions and is executed immediately if available

@@ -1,4 +1,4 @@
-package net.timecrafter.quests.quests.activation;
+package net.timecrafter.quests.activation;
 
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -7,7 +7,8 @@ import java.util.Objects;
 import net.citizensnpcs.api.event.NPCClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.timecrafter.custombukkit.entities.CustomEntity;
-import net.timecrafter.quests.quests.Quest;
+import net.timecrafter.quests.Quest;
+import net.timecrafter.quests.party.QuestParty;
 
 public class EntityInteractMethod implements ActivationMethod {
 
@@ -29,7 +30,7 @@ public class EntityInteractMethod implements ActivationMethod {
 	public void onCitizensInteract(NPCClickEvent event) {
 		NPC npc = event.getNPC();
 		if (npc != null && npc.equals(entity.getNPC())) {
-			quest.start(event.getClicker());
+			quest.start(QuestParty.getOrCreateParty(event.getClicker()));
 		}
 	}
 

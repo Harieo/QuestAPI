@@ -1,9 +1,8 @@
-package net.timecrafter.quests.quests.events;
+package net.timecrafter.quests.events;
 
-import org.bukkit.entity.Player;
-
-import net.timecrafter.quests.quests.Quest;
-import net.timecrafter.quests.quests.stages.QuestStage;
+import net.timecrafter.quests.Quest;
+import net.timecrafter.quests.party.QuestParty;
+import net.timecrafter.quests.stages.QuestStage;
 
 public class QuestStageProgressionEvent extends QuestEvent {
 
@@ -13,11 +12,11 @@ public class QuestStageProgressionEvent extends QuestEvent {
 	 * An event that occurs when a player progresses to the next stage of a quest line
 	 *
 	 * @param quest which the player is currently doing
-	 * @param player who is progressing to the next stage
+	 * @param party who is progressing to the next stage
 	 * @param stage that is being progressed to
 	 */
-	public QuestStageProgressionEvent(Quest quest, Player player, QuestStage stage) {
-		super(quest, player);
+	public QuestStageProgressionEvent(Quest quest, QuestParty party, QuestStage stage) {
+		super(quest, party);
 		this.stage = stage;
 	}
 
