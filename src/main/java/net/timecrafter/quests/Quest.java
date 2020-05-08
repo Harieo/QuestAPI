@@ -1,7 +1,6 @@
 package net.timecrafter.quests;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;
@@ -19,6 +18,7 @@ public abstract class Quest {
 	private final String questName;
 	private final String description;
 	private final QuestType questType;
+	private final int minimumLevel;
 
 	private final List<QuestStage> stages;
 	private final Set<QuestParty> parties = new HashSet<>();
@@ -31,11 +31,13 @@ public abstract class Quest {
 	 * @param description a description of what this quest is about shown to players
 	 * @param questType the type of quest
 	 */
-	public Quest(String questName, String description, QuestType questType) {
+	public Quest(String questName, String description, QuestType questType, int minimumLevel,
+			List<QuestStage> finalStages, ActivationMethod activationMethod) {
 		this.questName = questName;
 		this.description = description;
 		this.questType = questType;
-		this.stages = getFinalStages(); // To make sure no edits to the list can happen after instantiation
+		this.minimumLevel = minimumLevel;
+		this.stages = finalStages; // To make sure no edits to the list can happen after instantiation
 
 		if (stages.isEmpty()) {
 			throw new IllegalStateException("A quest must have at least 1 stage");
@@ -50,7 +52,7 @@ public abstract class Quest {
 			}
 		}
 
-		Bukkit.getPluginManager().registerEvents(getActivationMethod(), QuestPlugin.getInstance());
+		Bukkit.getPluginManager().registerEvents(activationMethod, QuestPlugin.getInstance());
 	}
 
 	/**
@@ -72,6 +74,13 @@ public abstract class Quest {
 	 */
 	public QuestType getQuestType() {
 		return questType;
+	}
+
+	/**
+	 * @return the minimum level required to start this quest
+	 */
+	public int getMinimumLevel() {
+		return minimumLevel;
 	}
 
 	/**
@@ -116,6 +125,7 @@ public abstract class Quest {
 	private void setStage(QuestParty party, QuestStage stage) {
 		int index = stages.indexOf(stage);
 
+		parties.add(party);
 		party.setCurrentStage(stage);
 		stage.execute(party); // Begins the stage
 
@@ -163,6 +173,7 @@ public abstract class Quest {
 	private void completeQuest(QuestParty party) {
 		onQuestCompletion(party);
 		Bukkit.getPluginManager().callEvent(new QuestCompletionEvent(this, party));
+		parties.remove(party);
 	}
 
 	/**
@@ -173,26 +184,11 @@ public abstract class Quest {
 	}
 
 	/**
-	 * @return the minimum level a player must be to start this quest
-	 */
-	public abstract int getMinimumLevel();
-
-	/**
-	 * @return the {@link ActivationMethod} which activates this quest for a player
-	 */
-	public abstract ActivationMethod getActivationMethod();
-
-	/**
 	 * An internal abstract method which is called when a player completes the quest. This saves you having to make a
 	 * listener for {@link QuestCompletionEvent} if you don't need to.
 	 *
 	 * @param party who has completed the quest
 	 */
 	public abstract void onQuestCompletion(QuestParty party);
-
-	/**
-	 * @return a list of all the stages in this quest which will be copied to prevent any further editing
-	 */
-	protected abstract List<QuestStage> getFinalStages();
 
 }
