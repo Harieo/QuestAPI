@@ -6,13 +6,14 @@ import org.bukkit.entity.Player;
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import net.timecrafter.quests.data.LinearQuest;
+import net.timecrafter.quests.data.Quest;
 import net.timecrafter.quests.stages.QuestStage;
 
 public class QuestParty {
 
 	private static final Set<QuestParty> openParties = new HashSet<>();
 
-	private LinearQuest quest;
+	private Quest quest;
 	private QuestStage currentStage;
 	private final Set<UUID> members = new HashSet<>();
 
@@ -30,7 +31,7 @@ public class QuestParty {
 	/**
 	 * @return the quest this party is currently doing or null if they are not doing a quest
 	 */
-	public LinearQuest getQuest() {
+	public Quest getQuest() {
 		return quest;
 	}
 
@@ -39,7 +40,7 @@ public class QuestParty {
 	 *
 	 * @param quest that this party is currently doing
 	 */
-	public void setQuest(LinearQuest quest) {
+	public void setQuest(Quest quest) {
 		this.quest = quest;
 	}
 

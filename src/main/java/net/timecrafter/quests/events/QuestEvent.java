@@ -3,20 +3,20 @@ package net.timecrafter.quests.events;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import net.timecrafter.quests.data.LinearQuest;
+import net.timecrafter.quests.data.Quest;
 import net.timecrafter.quests.party.QuestParty;
 
 public class QuestEvent extends Event {
 
-	private final LinearQuest quest;
+	private final Quest quest;
 	private final QuestParty party;
 
-	public QuestEvent(LinearQuest quest, QuestParty party) {
+	public QuestEvent(Quest quest, QuestParty party) {
 		this.quest = quest;
 		this.party = party;
 	}
 
-	public LinearQuest getQuest() {
+	public Quest getQuest() {
 		return quest;
 	}
 

@@ -8,11 +8,12 @@ import net.citizensnpcs.api.event.NPCClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.timecrafter.custombukkit.entities.CustomEntity;
 import net.timecrafter.quests.data.LinearQuest;
+import net.timecrafter.quests.data.Quest;
 import net.timecrafter.quests.party.QuestParty;
 
 public class EntityInteractMethod implements ActivationMethod {
 
-	private final LinearQuest quest;
+	private final Quest quest;
 	private final CustomEntity entity;
 
 	/**
@@ -21,7 +22,7 @@ public class EntityInteractMethod implements ActivationMethod {
 	 * @param quest which is being activated
 	 * @param entity that must be right clicked to activate a quest
 	 */
-	public EntityInteractMethod(LinearQuest quest, CustomEntity entity) {
+	public EntityInteractMethod(Quest quest, CustomEntity entity) {
 		this.quest = Objects.requireNonNull(quest);
 		this.entity = Objects.requireNonNull(entity);
 	}

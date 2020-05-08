@@ -1,6 +1,6 @@
 package net.timecrafter.quests.events;
 
-import net.timecrafter.quests.data.LinearQuest;
+import net.timecrafter.quests.data.Quest;
 import net.timecrafter.quests.party.QuestParty;
 import net.timecrafter.quests.stages.QuestStage;
 
@@ -15,7 +15,7 @@ public class QuestStageProgressionEvent extends QuestEvent {
 	 * @param party who is progressing to the next stage
 	 * @param stage that is being progressed to
 	 */
-	public QuestStageProgressionEvent(LinearQuest quest, QuestParty party, QuestStage stage) {
+	public QuestStageProgressionEvent(Quest quest, QuestParty party, QuestStage stage) {
 		super(quest, party);
 		this.stage = stage;
 	}
