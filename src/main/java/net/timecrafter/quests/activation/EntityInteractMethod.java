@@ -7,7 +7,6 @@ import java.util.Objects;
 import net.citizensnpcs.api.event.NPCClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.timecrafter.custombukkit.entities.CustomEntity;
-import net.timecrafter.quests.data.LinearQuest;
 import net.timecrafter.quests.data.Quest;
 import net.timecrafter.quests.party.QuestParty;
 
