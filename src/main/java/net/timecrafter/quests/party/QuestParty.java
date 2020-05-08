@@ -5,19 +5,19 @@ import org.bukkit.entity.Player;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
-import net.timecrafter.quests.Quest;
+import net.timecrafter.quests.data.LinearQuest;
 import net.timecrafter.quests.stages.QuestStage;
 
 public class QuestParty {
 
 	private static final Set<QuestParty> openParties = new HashSet<>();
 
-	private Quest quest;
+	private LinearQuest quest;
 	private QuestStage currentStage;
 	private final Set<UUID> members = new HashSet<>();
 
 	/**
-	 * A set of {@link Player} who are all doing the same {@link Quest}. Parties are cached upon instantiation so please
+	 * A set of {@link Player} who are all doing the same {@link LinearQuest}. Parties are cached upon instantiation so please
 	 * use {@link #getOrCreateParty(Player)} to create a new one to prevent caching errors.
 	 *
 	 * Note: A player may not be in more than 1 party at once and no party may be created empty to prevent redundant
@@ -30,7 +30,7 @@ public class QuestParty {
 	/**
 	 * @return the quest this party is currently doing or null if they are not doing a quest
 	 */
-	public Quest getQuest() {
+	public LinearQuest getQuest() {
 		return quest;
 	}
 
@@ -39,19 +39,19 @@ public class QuestParty {
 	 *
 	 * @param quest that this party is currently doing
 	 */
-	public void setQuest(Quest quest) {
+	public void setQuest(LinearQuest quest) {
 		this.quest = quest;
 	}
 
 	/**
-	 * @return the current stage in the {@link Quest} that the party is doing
+	 * @return the current stage in the {@link LinearQuest} that the party is doing
 	 */
 	public QuestStage getCurrentStage() {
 		return currentStage;
 	}
 
 	/**
-	 * Sets the {@link QuestStage} that this party is at in the {@link Quest}
+	 * Sets the {@link QuestStage} that this party is at in the {@link LinearQuest}
 	 *
 	 * @param stage that the party is currently doing
 	 */

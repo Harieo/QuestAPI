@@ -1,4 +1,4 @@
-package net.timecrafter.quests;
+package net.timecrafter.quests.data;
 
 public enum QuestType {
 

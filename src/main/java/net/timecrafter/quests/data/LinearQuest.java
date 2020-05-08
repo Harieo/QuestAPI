@@ -1,9 +1,10 @@
-package net.timecrafter.quests;
+package net.timecrafter.quests.data;
 
 import org.bukkit.Bukkit;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;
+import net.timecrafter.quests.QuestPlugin;
 import net.timecrafter.quests.activation.ActivationMethod;
 import net.timecrafter.quests.events.QuestCompletionEvent;
 import net.timecrafter.quests.events.QuestStageProgressionEvent;
@@ -13,7 +14,7 @@ import net.timecrafter.quests.stages.QuestAction;
 import net.timecrafter.quests.stages.QuestStage;
 import net.timecrafter.quests.stages.QuestTask;
 
-public abstract class Quest {
+public abstract class LinearQuest implements Quest {
 
 	private final String questName;
 	private final String description;
@@ -31,7 +32,7 @@ public abstract class Quest {
 	 * @param description a description of what this quest is about shown to players
 	 * @param questType the type of quest
 	 */
-	public Quest(String questName, String description, QuestType questType, int minimumLevel,
+	public LinearQuest(String questName, String description, QuestType questType, int minimumLevel,
 			List<QuestStage> finalStages, ActivationMethod activationMethod) {
 		this.questName = questName;
 		this.description = description;
@@ -55,50 +56,33 @@ public abstract class Quest {
 		Bukkit.getPluginManager().registerEvents(activationMethod, QuestPlugin.getInstance());
 	}
 
-	/**
-	 * @return the name of this quest
-	 */
+	@Override
 	public String getQuestName() {
 		return questName;
 	}
 
-	/**
-	 * @return the summary details of this quest
-	 */
+	@Override
 	public String getQuestDescription() {
 		return description;
 	}
 
-	/**
-	 * @return the type of this quest
-	 */
+	@Override
 	public QuestType getQuestType() {
 		return questType;
 	}
 
-	/**
-	 * @return the minimum level required to start this quest
-	 */
+	@Override
 	public int getMinimumLevel() {
 		return minimumLevel;
 	}
 
-	/**
-	 * Starts a {@link QuestParty} of players on this quest at the first stage
-	 *
-	 * @param party who is starting the quest
-	 */
-	public void start(QuestParty party) {
+	@Override
+	public void startQuest(QuestParty party) {
 		setStage(party, stages.get(0));
 		Bukkit.getPluginManager().callEvent(new QuestStartEvent(this, party));
 	}
 
-	/**
-	 * Progresses a player to the next {@link QuestStage} in the sequence
-	 *
-	 * @param party who is moving to the next stage
-	 * @return whether the next stage was available
-	 */
+	@Override
 	public boolean nextStage(QuestParty party) {
 		if (parties.contains(party)) {
 			int nextIndex = stages.indexOf(party.getCurrentStage()) + 1;
@@ -113,16 +97,8 @@ public abstract class Quest {
 		return false;
 	}
 
-	/**
-	 * Sets a party's current {@link QuestStage} and handles the execution of that stage accordingly. Note: This method
-	 * is private because it is dangerous to use out of sequence due to the fact that it calls {@link
-	 * #nextStage(QuestParty)} which calls this method again in turn. Editing this method incorrectly may result in a
-	 * stack overflow.
-	 *
-	 * @param party to set the stage for
-	 * @param stage to be executed
-	 */
-	private void setStage(QuestParty party, QuestStage stage) {
+	@Override
+	public void setStage(QuestParty party, QuestStage stage) {
 		int index = stages.indexOf(stage);
 
 		parties.add(party);
@@ -165,30 +141,16 @@ public abstract class Quest {
 		}
 	}
 
-	/**
-	 * Calls {@link #onQuestCompletion(QuestParty)} and {@link QuestCompletionEvent} for the player
-	 *
-	 * @param party who has completed this quest
-	 */
-	private void completeQuest(QuestParty party) {
+	@Override
+	public void completeQuest(QuestParty party) {
 		onQuestCompletion(party);
 		Bukkit.getPluginManager().callEvent(new QuestCompletionEvent(this, party));
 		parties.remove(party);
 	}
 
-	/**
-	 * @return an immutable list of all the stages in this quest
-	 */
+	@Override
 	public List<QuestStage> getStages() {
 		return ImmutableList.copyOf(stages);
 	}
-
-	/**
-	 * An internal abstract method which is called when a player completes the quest. This saves you having to make a
-	 * listener for {@link QuestCompletionEvent} if you don't need to.
-	 *
-	 * @param party who has completed the quest
-	 */
-	public abstract void onQuestCompletion(QuestParty party);
 
 }
