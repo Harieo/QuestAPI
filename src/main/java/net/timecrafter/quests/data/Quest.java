@@ -31,8 +31,9 @@ public interface Quest {
 	 * Starts a {@link QuestParty} of players on this quest at the first stage
 	 *
 	 * @param party who is starting the quest
+	 * @return whether the attempt to start the quest was successful
 	 */
-	void startQuest(QuestParty party);
+	boolean startQuest(QuestParty party);
 
 	/**
 	 * Progresses a party to the next {@link QuestStage} in the sequence
@@ -59,6 +60,22 @@ public interface Quest {
 	 * @param party who has completed this quest
 	 */
 	void completeQuest(QuestParty party);
+
+	/**
+	 * Cancels the quest for the specified party, effectively removing them from all stages and on-going processes for
+	 * the quest
+	 *
+	 * @param party who is cancelling the quest
+	 */
+	void cancelQuest(QuestParty party);
+
+	/**
+	 * Checks whether a party is eligible to start this quest
+	 *
+	 * @param party to check if it is eligible to start the quest
+	 * @return whether the party is eligible
+	 */
+	boolean isPartyEligible(QuestParty party);
 
 	/**
 	 * @return a list of all the stages in this quest

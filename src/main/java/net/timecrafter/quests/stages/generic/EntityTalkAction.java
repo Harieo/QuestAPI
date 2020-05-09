@@ -1,4 +1,4 @@
-package net.timecrafter.quests.stages;
+package net.timecrafter.quests.stages.generic;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import net.timecrafter.custombukkit.entities.CustomEntity;
 import net.timecrafter.quests.QuestPlugin;
 import net.timecrafter.quests.party.QuestParty;
+import net.timecrafter.quests.stages.QuestAction;
 
 public class EntityTalkAction implements QuestAction {
 
@@ -26,9 +27,7 @@ public class EntityTalkAction implements QuestAction {
 	@Override
 	public void execute(QuestParty party) {
 		for (Player player : party.getOnlinePartyMembers()) {
-			player.sendMessage(
-					entity.getEntityData().getDisplayName() + ChatColor.DARK_GRAY + QuestPlugin.ARROWS + " "
-							+ ChatColor.RESET + message);
+			player.sendMessage(formatAsEntity(message, entity));
 		}
 	}
 
@@ -40,6 +39,11 @@ public class EntityTalkAction implements QuestAction {
 	@Override
 	public int getTickDelay() {
 		return 20 * 3;
+	}
+
+	public static String formatAsEntity(String message, CustomEntity entity) {
+		return entity.getEntityData().getDisplayName() + ChatColor.DARK_GRAY + QuestPlugin.ARROWS + " "
+				+ ChatColor.RESET + message;
 	}
 
 }

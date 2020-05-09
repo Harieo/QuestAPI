@@ -4,6 +4,9 @@ import org.bukkit.Bukkit;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import net.timecrafter.custombukkit.levelling.PlayerLevellingInfo;
+import net.timecrafter.custombukkit.levelling.types.Levelled;
 import net.timecrafter.quests.QuestPlugin;
 import net.timecrafter.quests.activation.ActivationMethod;
 import net.timecrafter.quests.events.QuestCompletionEvent;
@@ -13,6 +16,7 @@ import net.timecrafter.quests.party.QuestParty;
 import net.timecrafter.quests.stages.QuestAction;
 import net.timecrafter.quests.stages.QuestStage;
 import net.timecrafter.quests.stages.QuestTask;
+import net.timecrafter.timelib.database.api.InfoCore;
 
 public abstract class LinearQuest implements Quest {
 
@@ -20,6 +24,7 @@ public abstract class LinearQuest implements Quest {
 	private final String description;
 	private final QuestType questType;
 	private final int minimumLevel;
+	private final Levelled levellingUnit;
 
 	private final List<QuestStage> stages;
 	private final Set<QuestParty> parties = new HashSet<>();
@@ -31,14 +36,18 @@ public abstract class LinearQuest implements Quest {
 	 * @param questName the name of this quest shown to players
 	 * @param description a description of what this quest is about shown to players
 	 * @param questType the type of quest
+	 * @param minimumLevel the minimum level all party members must be to start the quest
+	 * @param finalStages the stages of this quest that are completed in order by each party
+	 * @param levellingUnit the levelling class which is queried to verify minimum level
 	 */
 	public LinearQuest(String questName, String description, QuestType questType, int minimumLevel,
-			List<QuestStage> finalStages, ActivationMethod activationMethod) {
+			List<QuestStage> finalStages, Levelled levellingUnit) {
 		this.questName = questName;
 		this.description = description;
 		this.questType = questType;
 		this.minimumLevel = minimumLevel;
 		this.stages = finalStages; // To make sure no edits to the list can happen after instantiation
+		this.levellingUnit = levellingUnit;
 
 		if (stages.isEmpty()) {
 			throw new IllegalStateException("A quest must have at least 1 stage");
@@ -53,7 +62,7 @@ public abstract class LinearQuest implements Quest {
 			}
 		}
 
-		Bukkit.getPluginManager().registerEvents(activationMethod, QuestPlugin.getInstance());
+		Bukkit.getPluginManager().registerEvents(getActivationMethod(), QuestPlugin.getInstance());
 	}
 
 	@Override
@@ -77,15 +86,45 @@ public abstract class LinearQuest implements Quest {
 	}
 
 	@Override
-	public void startQuest(QuestParty party) {
-		setStage(party, stages.get(0));
-		Bukkit.getPluginManager().callEvent(new QuestStartEvent(this, party));
+	public boolean isPartyEligible(QuestParty party) {
+		// Checks the minimum level of all members
+		for (UUID uuid : party.getPartyMembers()) {
+			try {
+				PlayerLevellingInfo levellingInfo = InfoCore.get(PlayerLevellingInfo.class, uuid).get();
+				if (levellingInfo.getLevel(levellingUnit) < minimumLevel) {
+					return false; // Not a high enough level
+				}
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				return false; // An error occurred, better be safe by not continuing
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean startQuest(QuestParty party) {
+		if (!parties.contains(party) && isPartyEligible(party)) {
+			setStage(party, stages.get(0));
+			Bukkit.getPluginManager().callEvent(new QuestStartEvent(this, party));
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public boolean nextStage(QuestParty party) {
 		if (parties.contains(party)) {
-			int nextIndex = stages.indexOf(party.getCurrentStage()) + 1;
+			QuestStage currentStage = party.getCurrentStage();
+			if (currentStage instanceof QuestTask) {
+				QuestTask task = (QuestTask) currentStage;
+				if (!task.isComplete(party)) {
+					return false; // Not completed their task yet
+				}
+			}
+
+			int nextIndex = stages.indexOf(currentStage) + 1;
 			if (nextIndex < stages.size()) {
 				QuestStage nextStage = stages.get(nextIndex);
 				setStage(party, nextStage);
@@ -149,8 +188,25 @@ public abstract class LinearQuest implements Quest {
 	}
 
 	@Override
+	public void cancelQuest(QuestParty party) {
+		if (parties.contains(party)) {
+			QuestStage currentStage = party.getCurrentStage();
+			if (currentStage instanceof QuestTask) {
+				((QuestTask) currentStage).cancel(party);
+			}
+
+			parties.remove(party);
+		}
+	}
+
+	@Override
 	public List<QuestStage> getStages() {
 		return ImmutableList.copyOf(stages);
 	}
+
+	/**
+	 * @return the method to activate this quest
+	 */
+	public abstract ActivationMethod getActivationMethod();
 
 }

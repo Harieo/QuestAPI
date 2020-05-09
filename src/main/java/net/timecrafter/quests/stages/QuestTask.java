@@ -1,11 +1,23 @@
 package net.timecrafter.quests.stages;
 
+import java.util.List;
 import net.timecrafter.quests.party.QuestParty;
 
 /**
  * Represents a criteria based quest stage that is held until all criteria are met
  */
 public interface QuestTask extends QuestStage {
+
+	/**
+	 * A method called if a party has previously invoked {@link #execute(QuestParty)} but has abandoned the quest. If
+	 * this is called, the party will have to go through {@link #execute(QuestParty)} again to restart it.
+	 *
+	 * Developer note: {@link QuestAction} cannot be cancelled because it executes once then moves onto the next stage
+	 * immediately.
+	 *
+	 * @param party who has cancelled this stage
+	 */
+	void cancel(QuestParty party);
 
 	/**
 	 * A method to check whether the criteria for completing this task has been met by an executing player
@@ -32,5 +44,10 @@ public interface QuestTask extends QuestStage {
 	 * @return the maximum amount of progress the player can make numerically
 	 */
 	int getProgressDenominator(QuestParty party);
+
+	/**
+	 * @return a message to describe how to complete this task for the player
+	 */
+	String getTaskDescription();
 
 }
