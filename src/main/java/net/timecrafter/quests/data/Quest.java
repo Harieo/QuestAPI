@@ -1,5 +1,7 @@
 package net.timecrafter.quests.data;
 
+import org.bukkit.NamespacedKey;
+
 import java.util.List;
 import net.timecrafter.quests.events.QuestCompletionEvent;
 import net.timecrafter.quests.party.QuestParty;
@@ -18,6 +20,11 @@ public interface Quest {
 	String getQuestDescription();
 
 	/**
+	 * @return a unique identifier used with the database
+	 */
+	String getQuestIdentifier();
+
+	/**
 	 * @return the type of this quest
 	 */
 	QuestType getQuestType();
@@ -26,6 +33,11 @@ public interface Quest {
 	 * @return the minimum level required to start this quest
 	 */
 	int getMinimumLevel();
+
+	/**
+	 * @return whether to allow a player to repeat this quest
+	 */
+	boolean isQuestRepeatable();
 
 	/**
 	 * Starts a {@link QuestParty} of players on this quest at the first stage

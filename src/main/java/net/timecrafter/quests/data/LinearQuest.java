@@ -1,6 +1,7 @@
 package net.timecrafter.quests.data;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;
@@ -13,6 +14,7 @@ import net.timecrafter.quests.events.QuestCompletionEvent;
 import net.timecrafter.quests.events.QuestStageProgressionEvent;
 import net.timecrafter.quests.events.QuestStartEvent;
 import net.timecrafter.quests.party.QuestParty;
+import net.timecrafter.quests.sql.CompletedQuestsInfo;
 import net.timecrafter.quests.stages.QuestAction;
 import net.timecrafter.quests.stages.QuestStage;
 import net.timecrafter.quests.stages.QuestTask;
@@ -22,8 +24,10 @@ public abstract class LinearQuest implements Quest {
 
 	private final String questName;
 	private final String description;
+	private final String uniqueId;
 	private final QuestType questType;
 	private final int minimumLevel;
+	private boolean repeatable;
 	private final Levelled levellingUnit;
 
 	private final List<QuestStage> stages;
@@ -40,12 +44,20 @@ public abstract class LinearQuest implements Quest {
 	 * @param finalStages the stages of this quest that are completed in order by each party
 	 * @param levellingUnit the levelling class which is queried to verify minimum level
 	 */
-	public LinearQuest(String questName, String description, QuestType questType, int minimumLevel,
-			List<QuestStage> finalStages, Levelled levellingUnit) {
+	public LinearQuest(String questName,
+			String description,
+			String uniqueId,
+			QuestType questType,
+			int minimumLevel,
+			boolean repeatable,
+			List<QuestStage> finalStages,
+			Levelled levellingUnit) {
 		this.questName = questName;
 		this.description = description;
+		this.uniqueId = uniqueId;
 		this.questType = questType;
 		this.minimumLevel = minimumLevel;
+		this.repeatable = repeatable;
 		this.stages = finalStages; // To make sure no edits to the list can happen after instantiation
 		this.levellingUnit = levellingUnit;
 
@@ -76,6 +88,11 @@ public abstract class LinearQuest implements Quest {
 	}
 
 	@Override
+	public String getQuestIdentifier() {
+		return uniqueId;
+	}
+
+	@Override
 	public QuestType getQuestType() {
 		return questType;
 	}
@@ -86,6 +103,11 @@ public abstract class LinearQuest implements Quest {
 	}
 
 	@Override
+	public boolean isQuestRepeatable() {
+		return repeatable;
+	}
+
+	@Override
 	public boolean isPartyEligible(QuestParty party) {
 		// Checks the minimum level of all members
 		for (UUID uuid : party.getPartyMembers()) {
@@ -93,6 +115,13 @@ public abstract class LinearQuest implements Quest {
 				PlayerLevellingInfo levellingInfo = InfoCore.get(PlayerLevellingInfo.class, uuid).get();
 				if (levellingInfo.getLevel(levellingUnit) < minimumLevel) {
 					return false; // Not a high enough level
+				}
+
+				if (!isQuestRepeatable()) {
+					CompletedQuestsInfo completedQuestsInfo = InfoCore.get(CompletedQuestsInfo.class, uuid).get();
+					if (completedQuestsInfo.isQuestComplete(this)) {
+						return false; // Already completed a non-repeatable quest
+					}
 				}
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
