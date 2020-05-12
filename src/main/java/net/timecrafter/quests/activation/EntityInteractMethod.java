@@ -6,7 +6,7 @@ import org.bukkit.event.EventHandler;
 
 import java.util.Collection;
 import java.util.Objects;
-import net.citizensnpcs.api.event.NPCClickEvent;
+import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.timecrafter.custombukkit.entities.CustomEntity;
 import net.timecrafter.quests.data.Quest;
@@ -35,7 +35,7 @@ public class EntityInteractMethod implements ActivationMethod {
 	}
 
 	@EventHandler
-	public void onCitizensInteract(NPCClickEvent event) {
+	public void onCitizensInteract(NPCRightClickEvent event) {
 		NPC npc = event.getNPC();
 		Collection<CustomEntity> possibilities =
 				CustomEntity.getSpecificEntities(entity ->
@@ -54,7 +54,7 @@ public class EntityInteractMethod implements ActivationMethod {
 						message = ((QuestTask) currentStage).getTaskDescription();
 					}
 				} else if (!quest.isPartyEligible(party)) {
-					message = ChatColor.GRAY + "You can't start that quest just yet...";
+					message = ChatColor.GRAY + "You can't start that quest...";
 				}
 
 				if (message != null) {

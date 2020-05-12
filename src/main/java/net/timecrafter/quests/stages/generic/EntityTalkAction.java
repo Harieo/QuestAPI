@@ -42,7 +42,7 @@ public class EntityTalkAction implements QuestAction {
 	}
 
 	public static String formatAsEntity(String message, CustomEntity entity) {
-		return entity.getEntityData().getDisplayName() + ChatColor.DARK_GRAY + QuestPlugin.ARROWS + " "
+		return entity.getEntityData().getDisplayName() + " " + ChatColor.DARK_GRAY + QuestPlugin.ARROWS + " "
 				+ ChatColor.RESET + message;
 	}
 

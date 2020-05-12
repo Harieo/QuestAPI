@@ -1,6 +1,7 @@
 package net.timecrafter.quests.data;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 
 import com.google.common.collect.ImmutableList;
@@ -65,15 +66,6 @@ public abstract class LinearQuest implements Quest {
 			throw new IllegalStateException("A quest must have at least 1 stage");
 		}
 
-		// All values need to be unique
-		for (QuestStage stage : stages) {
-			for (QuestStage comparingStage : stages) {
-				if (stage == comparingStage) {
-					throw new IllegalStateException("Duplicate stage object in stage list");
-				}
-			}
-		}
-
 		Bukkit.getPluginManager().registerEvents(getActivationMethod(), QuestPlugin.getInstance());
 	}
 
@@ -136,6 +128,7 @@ public abstract class LinearQuest implements Quest {
 	public boolean startQuest(QuestParty party) {
 		if (!parties.contains(party) && isPartyEligible(party)) {
 			setStage(party, stages.get(0));
+			party.setQuest(this);
 			Bukkit.getPluginManager().callEvent(new QuestStartEvent(this, party));
 			return true;
 		}
@@ -158,11 +151,13 @@ public abstract class LinearQuest implements Quest {
 				QuestStage nextStage = stages.get(nextIndex);
 				setStage(party, nextStage);
 				Bukkit.getPluginManager().callEvent(new QuestStageProgressionEvent(this, party, nextStage));
-				return true;
+			} else {
+				completeQuest(party);
 			}
+			return true;
+		} else {
+			return false;
 		}
-
-		return false;
 	}
 
 	@Override
@@ -214,6 +209,16 @@ public abstract class LinearQuest implements Quest {
 		onQuestCompletion(party);
 		Bukkit.getPluginManager().callEvent(new QuestCompletionEvent(this, party));
 		parties.remove(party);
+		party.getOnlinePartyMembers().forEach(player ->
+				InfoCore.get(CompletedQuestsInfo.class, player.getUniqueId()).whenComplete((info, error) -> {
+					if (error != null) {
+						error.printStackTrace();
+						player.sendMessage(QuestPlugin.formatMessage(
+								ChatColor.RED + "An error occurred saving your progress... Please report this!"));
+					} else {
+						info.markComplete(this);
+					}
+				}));
 	}
 
 	@Override
