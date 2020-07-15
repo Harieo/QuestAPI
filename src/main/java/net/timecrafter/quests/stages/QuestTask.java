@@ -1,6 +1,5 @@
 package net.timecrafter.quests.stages;
 
-import java.util.List;
 import net.timecrafter.quests.party.QuestParty;
 
 /**
@@ -18,6 +17,13 @@ public interface QuestTask extends QuestStage {
 	 * @param party who has cancelled this stage
 	 */
 	void cancel(QuestParty party);
+
+	/**
+	 * Indicates that this task has been successfully completed by a party
+	 *
+	 * @param party which has completed this task
+	 */
+	void complete(QuestParty party);
 
 	/**
 	 * A method to check whether the criteria for completing this task has been met by an executing player

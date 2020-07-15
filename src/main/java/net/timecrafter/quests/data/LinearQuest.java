@@ -28,7 +28,7 @@ public abstract class LinearQuest implements Quest {
 	private final String uniqueId;
 	private final QuestType questType;
 	private final int minimumLevel;
-	private boolean repeatable;
+	private final boolean repeatable;
 	private final Levelled levellingUnit;
 
 	private final List<QuestStage> stages;
@@ -141,7 +141,9 @@ public abstract class LinearQuest implements Quest {
 			QuestStage currentStage = party.getCurrentStage();
 			if (currentStage instanceof QuestTask) {
 				QuestTask task = (QuestTask) currentStage;
-				if (!task.isComplete(party)) {
+				if (task.isComplete(party)) {
+					task.complete(party);
+				} else {
 					return false; // Not completed their task yet
 				}
 			}
