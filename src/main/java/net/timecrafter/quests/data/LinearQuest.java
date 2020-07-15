@@ -2,7 +2,6 @@ package net.timecrafter.quests.data;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;

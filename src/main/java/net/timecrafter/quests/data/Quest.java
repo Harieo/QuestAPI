@@ -1,7 +1,5 @@
 package net.timecrafter.quests.data;
 
-import org.bukkit.NamespacedKey;
-
 import java.util.List;
 import net.timecrafter.quests.events.QuestCompletionEvent;
 import net.timecrafter.quests.party.QuestParty;
