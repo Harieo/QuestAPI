@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import net.timecrafter.custombukkit.levelling.PlayerLevellingInfo;
-import net.timecrafter.custombukkit.levelling.types.Levelled;
+import net.timecrafter.custombukkit.levelling.types.Level;
 import net.timecrafter.quests.QuestPlugin;
 import net.timecrafter.quests.activation.ActivationMethod;
 import net.timecrafter.quests.events.QuestCompletionEvent;
@@ -28,7 +28,7 @@ public abstract class LinearQuest implements Quest {
 	private final QuestType questType;
 	private final int minimumLevel;
 	private final boolean repeatable;
-	private final Levelled levellingUnit;
+	private final Level levellingUnit;
 
 	private final List<QuestStage> stages;
 	private final Set<QuestParty> parties = new HashSet<>();
@@ -51,7 +51,7 @@ public abstract class LinearQuest implements Quest {
 			int minimumLevel,
 			boolean repeatable,
 			List<QuestStage> finalStages,
-			Levelled levellingUnit) {
+			Level levellingUnit) {
 		this.questName = questName;
 		this.description = description;
 		this.uniqueId = uniqueId;
@@ -104,7 +104,7 @@ public abstract class LinearQuest implements Quest {
 		for (UUID uuid : party.getPartyMembers()) {
 			try {
 				PlayerLevellingInfo levellingInfo = InfoCore.get(PlayerLevellingInfo.class, uuid).get();
-				if (levellingInfo.getLevel(levellingUnit) < minimumLevel) {
+				if (levellingInfo.getLevel(levellingUnit).getCurrentLevel() < minimumLevel) {
 					return false; // Not a high enough level
 				}
 
