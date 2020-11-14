@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 import net.timecrafter.custombukkit.entities.CustomEntity;
-import net.timecrafter.quests.QuestPlugin;
 import net.timecrafter.quests.party.QuestParty;
 import net.timecrafter.quests.stages.QuestAction;
 
@@ -49,7 +48,7 @@ public class EntityTalkAction implements QuestAction {
 	}
 
 	public static String formatAsEntity(String message, CustomEntity entity) {
-		return entity.getEntityData().getDisplayName() + " " + ChatColor.DARK_GRAY + QuestPlugin.ARROWS + " "
+		return entity.getEntityData().getDisplayName() + " " + ChatColor.DARK_GRAY + " » "
 				+ ChatColor.RESET + message;
 	}
 

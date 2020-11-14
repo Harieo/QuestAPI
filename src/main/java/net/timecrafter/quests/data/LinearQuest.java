@@ -2,13 +2,13 @@ package net.timecrafter.quests.data;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import net.timecrafter.custombukkit.levelling.PlayerLevellingInfo;
 import net.timecrafter.custombukkit.levelling.types.Level;
-import net.timecrafter.quests.QuestPlugin;
 import net.timecrafter.quests.activation.ActivationMethod;
 import net.timecrafter.quests.events.QuestCompletionEvent;
 import net.timecrafter.quests.events.QuestStageProgressionEvent;
@@ -22,6 +22,7 @@ import net.timecrafter.timelib.database.api.InfoCore;
 
 public abstract class LinearQuest implements Quest {
 
+	private final JavaPlugin plugin;
 	private final String questName;
 	private final String description;
 	private final String uniqueId;
@@ -44,7 +45,8 @@ public abstract class LinearQuest implements Quest {
 	 * @param finalStages the stages of this quest that are completed in order by each party
 	 * @param levellingUnit the levelling class which is queried to verify minimum level
 	 */
-	public LinearQuest(String questName,
+	public LinearQuest(JavaPlugin plugin,
+			String questName,
 			String description,
 			String uniqueId,
 			QuestType questType,
@@ -52,6 +54,7 @@ public abstract class LinearQuest implements Quest {
 			boolean repeatable,
 			List<QuestStage> finalStages,
 			Level levellingUnit) {
+		this.plugin = plugin;
 		this.questName = questName;
 		this.description = description;
 		this.uniqueId = uniqueId;
@@ -65,7 +68,7 @@ public abstract class LinearQuest implements Quest {
 			throw new IllegalStateException("A quest must have at least 1 stage");
 		}
 
-		Bukkit.getPluginManager().registerEvents(getActivationMethod(), QuestPlugin.getInstance());
+		Bukkit.getPluginManager().registerEvents(getActivationMethod(), plugin);
 	}
 
 	@Override
@@ -188,7 +191,7 @@ public abstract class LinearQuest implements Quest {
 			runnable = () -> {
 				boolean success = nextStage(party);
 				if (!success) {
-					QuestPlugin.getInstance().getLogger().warning(
+					plugin.getLogger().warning(
 							"Failed to progress quest for a party, which is an error");
 				}
 			};
@@ -198,7 +201,7 @@ public abstract class LinearQuest implements Quest {
 
 		if (tickDelay > -1) {
 			if (tickDelay > 0) {
-				Bukkit.getScheduler().runTaskLater(QuestPlugin.getInstance(), runnable, tickDelay);
+				Bukkit.getScheduler().runTaskLater(plugin, runnable, tickDelay);
 			} else {
 				runnable.run(); // No point scheduling a task with 0 delay
 			}
@@ -214,8 +217,8 @@ public abstract class LinearQuest implements Quest {
 				InfoCore.get(CompletedQuestsInfo.class, player.getUniqueId()).whenComplete((info, error) -> {
 					if (error != null) {
 						error.printStackTrace();
-						player.sendMessage(QuestPlugin.formatMessage(
-								ChatColor.RED + "An error occurred saving your progress... Please report this!"));
+						player.sendMessage(
+								ChatColor.RED + "An error occurred saving your progress... Please report this!");
 					} else {
 						info.markComplete(this);
 					}

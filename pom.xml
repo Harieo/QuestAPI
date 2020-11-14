@@ -32,6 +32,7 @@
             <groupId>net.timecrafter</groupId>
             <artifactId>CustomBukkitLib</artifactId>
             <version>1.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.timecrafter</groupId>
