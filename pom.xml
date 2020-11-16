@@ -13,6 +13,8 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+
+
     </repositories>
 
     <properties>
@@ -32,13 +34,18 @@
             <groupId>net.timecrafter</groupId>
             <artifactId>CustomBukkitLib</artifactId>
             <version>1.1.0</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.timecrafter</groupId>
             <artifactId>timecore</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.citizensnpcs</groupId>
+            <artifactId>citizensapi</artifactId>
+            <version>2.0.27-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
