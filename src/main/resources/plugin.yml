@@ -1,6 +1,0 @@
-main: net.timecrafter.quests.QuestPlugin
-version: 1.0.0
-name: QuestAPI
-api-version: '1.12'
-depend:
-    - CustomBukkitLib

@@ -6,12 +6,21 @@
 
     <groupId>net.timecrafter</groupId>
     <artifactId>QuestAPI</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <repositories>
         <repository>
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>everything</id>
+            <url>http://repo.citizensnpcs.co/</url>
+        </repository>
+        <repository>
+            <id>nexus-timecrafter</id>
+            <name>Releases</name>
+            <url>https://repo.timecrafter.net/repository/maven-releases</url>
         </repository>
     </repositories>
 
@@ -31,14 +40,34 @@
         <dependency>
             <groupId>net.timecrafter</groupId>
             <artifactId>CustomBukkitLib</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.timecrafter</groupId>
-            <artifactId>timecore</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
+            <artifactId>TimeLib</artifactId>
+            <version>1.1.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.citizensnpcs</groupId>
+            <artifactId>citizensapi</artifactId>
+            <version>2.0.27-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-timecrafter</id>
+            <name>Releases</name>
+            <url>https://repo.timecrafter.net/repository/maven-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-timecrafter</id>
+            <name>Snapshot</name>
+            <url>https://repo.timecrafter.net/repository/maven-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
