@@ -14,6 +14,10 @@
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
         <repository>
+            <id>everything</id>
+            <url>http://repo.citizensnpcs.co/</url>
+        </repository>
+        <repository>
             <id>nexus-timecrafter</id>
             <name>Releases</name>
             <url>https://repo.timecrafter.net/repository/maven-releases</url>
@@ -41,9 +45,10 @@
         </dependency>
         <dependency>
             <groupId>net.timecrafter</groupId>
-            <artifactId>timecore</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
+            <artifactId>TimeLib</artifactId>
+            <version>1.1.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.citizensnpcs</groupId>
