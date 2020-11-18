@@ -13,8 +13,11 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
-
-
+        <repository>
+            <id>nexus-timecrafter</id>
+            <name>Releases</name>
+            <url>https://repo.timecrafter.net/repository/maven-releases</url>
+        </repository>
     </repositories>
 
     <properties>
