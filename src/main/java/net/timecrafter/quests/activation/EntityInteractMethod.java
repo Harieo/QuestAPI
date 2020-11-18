@@ -1,19 +1,19 @@
 package net.timecrafter.quests.activation;
 
+import net.citizensnpcs.api.event.NPCRightClickEvent;
+import net.citizensnpcs.api.npc.NPC;
+import net.timecrafter.custombukkit.entities.CustomEntity;
+import net.timecrafter.quests.data.Quest;
+import net.timecrafter.quests.party.QuestParty;
+import net.timecrafter.quests.stages.QuestStage;
+import net.timecrafter.quests.stages.QuestTask;
+import net.timecrafter.quests.stages.generic.EntityTalkAction;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 
 import java.util.Collection;
 import java.util.Objects;
-import net.citizensnpcs.api.event.NPCRightClickEvent;
-import net.citizensnpcs.api.npc.NPC;
-import net.timecrafter.custombukkit.entities.CustomEntity;
-import net.timecrafter.quests.data.Quest;
-import net.timecrafter.quests.party.QuestParty;
-import net.timecrafter.quests.stages.generic.EntityTalkAction;
-import net.timecrafter.quests.stages.QuestStage;
-import net.timecrafter.quests.stages.QuestTask;
 
 public class EntityInteractMethod implements ActivationMethod {
 
