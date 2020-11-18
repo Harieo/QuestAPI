@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.google.common.collect.ImmutableList;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import net.timecrafter.custombukkit.levelling.PlayerLevellingInfo;
@@ -31,7 +30,6 @@ public abstract class LinearQuest implements Quest {
 	private final boolean repeatable;
 	private final Level levellingUnit;
 
-	private final List<QuestStage> stages;
 	private final Set<QuestParty> parties = new HashSet<>();
 
 	/**
@@ -42,7 +40,6 @@ public abstract class LinearQuest implements Quest {
 	 * @param description a description of what this quest is about shown to players
 	 * @param questType the type of quest
 	 * @param minimumLevel the minimum level all party members must be to start the quest
-	 * @param finalStages the stages of this quest that are completed in order by each party
 	 * @param levellingUnit the levelling class which is queried to verify minimum level
 	 */
 	public LinearQuest(JavaPlugin plugin,
@@ -52,7 +49,6 @@ public abstract class LinearQuest implements Quest {
 			QuestType questType,
 			int minimumLevel,
 			boolean repeatable,
-			List<QuestStage> finalStages,
 			Level levellingUnit) {
 		this.plugin = plugin;
 		this.questName = questName;
@@ -61,12 +57,7 @@ public abstract class LinearQuest implements Quest {
 		this.questType = questType;
 		this.minimumLevel = minimumLevel;
 		this.repeatable = repeatable;
-		this.stages = finalStages; // To make sure no edits to the list can happen after instantiation
 		this.levellingUnit = levellingUnit;
-
-		if (stages.isEmpty()) {
-			throw new IllegalStateException("A quest must have at least 1 stage");
-		}
 
 		Bukkit.getPluginManager().registerEvents(getActivationMethod(), plugin);
 	}
@@ -129,7 +120,7 @@ public abstract class LinearQuest implements Quest {
 	@Override
 	public boolean startQuest(QuestParty party) {
 		if (!parties.contains(party) && isPartyEligible(party)) {
-			setStage(party, stages.get(0));
+			setStage(party, getStages().get(0));
 			party.setQuest(this);
 			Bukkit.getPluginManager().callEvent(new QuestStartEvent(this, party));
 			return true;
@@ -150,9 +141,9 @@ public abstract class LinearQuest implements Quest {
 				}
 			}
 
-			int nextIndex = stages.indexOf(currentStage) + 1;
-			if (nextIndex < stages.size()) {
-				QuestStage nextStage = stages.get(nextIndex);
+			int nextIndex = getStages().indexOf(currentStage) + 1;
+			if (nextIndex < getStages().size()) {
+				QuestStage nextStage = getStages().get(nextIndex);
 				setStage(party, nextStage);
 				Bukkit.getPluginManager().callEvent(new QuestStageProgressionEvent(this, party, nextStage));
 			} else {
@@ -166,7 +157,7 @@ public abstract class LinearQuest implements Quest {
 
 	@Override
 	public void setStage(QuestParty party, QuestStage stage) {
-		int index = stages.indexOf(stage);
+		int index = getStages().indexOf(stage);
 
 		parties.add(party);
 		party.setCurrentStage(stage);
@@ -187,7 +178,7 @@ public abstract class LinearQuest implements Quest {
 			}
 		}
 
-		if (index + 1 < stages.size()) { // If there is a next stage
+		if (index + 1 < getStages().size()) { // If there is a next stage
 			runnable = () -> {
 				boolean success = nextStage(party);
 				if (!success) {
@@ -235,11 +226,6 @@ public abstract class LinearQuest implements Quest {
 
 			parties.remove(party);
 		}
-	}
-
-	@Override
-	public List<QuestStage> getStages() {
-		return ImmutableList.copyOf(stages);
 	}
 
 	/**
