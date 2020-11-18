@@ -49,4 +49,17 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>nexus-timecrafter</id>
+            <name>Releases</name>
+            <url>https://repo.timecrafter.net/repository/maven-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-timecrafter</id>
+            <name>Snapshot</name>
+            <url>https://repo.timecrafter.net/repository/maven-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
